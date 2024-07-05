@@ -1,0 +1,57 @@
+<UserControl x:Class="Wave.Controls.HeaderCheckBox"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:Wave.Controls"
+             x:Name="HeaderCheckBoxControl" HorizontalAlignment="Left" Height="40">
+  <FrameworkElement.Resources>
+    <Style x:Key="tabButton" TargetType="{x:Type Button}">
+      <Setter Property="UIElement.SnapsToDevicePixels" Value="true"/>
+      <Setter Property="FrameworkElement.OverridesDefaultStyle" Value="true"/>
+      <Setter Property="Control.Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="{x:Type Button}">
+            <Border x:Name="BackgroundBorder" Background="{TemplateBinding Control.Background}" BorderThickness="0"
+                    CornerRadius="4">
+              <VisualStateManager.VisualStateGroups>
+                <VisualStateGroup x:Name="CommonStates">
+                  <VisualState x:Name="Normal"/>
+                  <VisualState x:Name="MouseOver">
+                    <Storyboard>
+                      <ColorAnimation To="White" Duration="0:0:0.2" Storyboard.TargetName="IconPath"
+                                      Storyboard.TargetProperty="(Shape.Fill).(SolidColorBrush.Color)"/>
+                    </Storyboard>
+                  </VisualState>
+                  <VisualState x:Name="Pressed">
+                    <Storyboard>
+                      <ColorAnimation To="White" Duration="0:0:0.2" Storyboard.TargetName="IconPath"
+                                      Storyboard.TargetProperty="(Shape.Fill).(SolidColorBrush.Color)"/>
+                    </Storyboard>
+                  </VisualState>
+                </VisualStateGroup>
+              </VisualStateManager.VisualStateGroups>
+              <Path x:Name="IconPath" Fill="#B2B2B2" Margin="{TemplateBinding Control.Padding}" Stretch="Uniform"
+                    Data="{Binding Content, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"/>
+            </Border>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+  </FrameworkElement.Resources>
+  <Grid MouseLeftButtonDown="MainGrid_MouseLeftButtonDown" x:Name="MainGrid"
+        Background="{Binding Background, RelativeSource={RelativeSource AncestorType=local:HeaderCheckBox}}">
+    <Rectangle x:Name="Highlight" StrokeThickness="0" Opacity="0"
+               Fill="{Binding BackgroundSelected, RelativeSource={RelativeSource AncestorType=local:HeaderCheckBox}}"/>
+    <Label x:Name="ContentLabel" Margin="8,0,34,0" VerticalAlignment="Center" HorizontalAlignment="Left"
+           Foreground="Gainsboro" FontSize="14" FontFamily="SF Pro"
+           Content="{Binding Title, RelativeSource={RelativeSource AncestorType=local:HeaderCheckBox}, FallbackValue=Untitled.lua}"
+           Background="{x:Null}"/>
+    <Button Click="CloseButton_Click" x:Name="CloseButton"
+            Content="M480-424 284-228q-11 11-28 11t-28-11q-11-11-11-28t11-28l196-196-196-196q-11-11-11-28t11-28q11-11 28-11t28 11l196 196 196-196q11-11 28-11t28 11q11 11 11 28t-11 28L536-480l196 196q11 11 11 28t-11 28q-11 11-28 11t-28-11L480-424Z"
+            HorizontalAlignment="Right" VerticalAlignment="Center" Panel.ZIndex="3" Width="16" Height="16"
+            Margin="0,0,12,0" Style="{DynamicResource tabButton}" Padding="2,2,2,2"
+            Background="{Binding Background, RelativeSource={RelativeSource AncestorType=local:HeaderCheckBox}}"
+            BorderBrush="{x:Null}" Foreground="{x:Null}"/>
+  </Grid>
+</UserControl>

@@ -1,0 +1,691 @@
+<Window x:Class="Wave.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Wave"
+        xmlns:converters="clr-namespace:Wave.Classes.Passive.Converters"
+        xmlns:cefsharp="clr-namespace:CefSharp.Wpf;assembly=CefSharp.Wpf"
+        xmlns:Controls="clr-namespace:Wave.Controls"
+        xmlns:AIControls="clr-namespace:Wave.Controls.AI"
+        xmlns:Settings="clr-namespace:Wave.Controls.Settings"
+        MouseDown="HomeWindow_MouseDown" SizeChanged="HomeWindow_SizeChanged" Loaded="HomeWindow_Loaded"
+        SourceInitialized="HomeWindow_SourceInitialized" Closing="HomeWindow_Closing" x:Name="HomeWindow"
+        Title="Wave - Home" Height="570" Width="800" WindowStartupLocation="CenterScreen"
+        WindowStyle="None" Icon="/Assets/Images/MainIcon/Wave32.png" AllowsTransparency="true"
+        MinWidth="800" MinHeight="450" Background="{x:Null}" Foreground="{x:Null}">
+  <FrameworkElement.Resources>
+    <converters:ThicknessToCornerRadiusConverter x:Key="thicknessToCornerRadiusConverter"/>
+    <SolidColorBrush x:Key="scrollForeground" Color="White"/>
+    <SolidColorBrush x:Key="scrollBackground" Color="Transparent"/>
+    <SolidColorBrush x:Key="thumbBackground" Color="#60ffffff"/>
+    <Color x:Key="thumbHover" A="255" R="136" G="136" B="136"/>
+    <Color x:Key="thumbPress" A="255" R="160" G="160" B="160"/>
+    <Style x:Key="HiddenRepeatButton" TargetType="{x:Type RepeatButton}">
+      <Setter Property="FrameworkElement.OverridesDefaultStyle" Value="true"/>
+      <Setter Property="Control.IsTabStop" Value="false"/>
+      <Setter Property="UIElement.Focusable" Value="false"/>
+      <Setter Property="Control.Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="{x:Type RepeatButton}">
+            <Rectangle Fill="{TemplateBinding Control.Background}" Height="{TemplateBinding FrameworkElement.Height}"
+                       Width="{TemplateBinding FrameworkElement.Width}"/>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    <Style x:Key="ScrollThumb" TargetType="{x:Type Thumb}">
+      <Setter Property="FrameworkElement.OverridesDefaultStyle" Value="true"/>
+      <Setter Property="Control.IsTabStop" Value="false"/>
+      <Setter Property="Control.Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="{x:Type Thumb}">
+            <Border x:Name="Border" Background="{DynamicResource thumbBackground}" CornerRadius="2"
+                    Height="{TemplateBinding FrameworkElement.Height}" Width="{TemplateBinding FrameworkElement.Width}"
+                    SnapsToDevicePixels="true">
+              <VisualStateManager.VisualStateGroups>
+                <VisualStateGroup x:Name="CommonStates">
+                  <VisualStateGroup.Transitions>
+                    <VisualTransition GeneratedDuration="0:0:0.12"/>
+                  </VisualStateGroup.Transitions>
+                  <VisualState x:Name="Normal"/>
+                  <VisualState x:Name="MouseOver">
+                    <Storyboard>
+                      <ColorAnimation To="{StaticResource thumbHover}" Storyboard.TargetProperty="(Background).(SolidColorBrush.Color)"/>
+                    </Storyboard>
+                  </VisualState>
+                  <VisualState x:Name="Pressed">
+                    <Storyboard>
+                      <ColorAnimation To="{StaticResource thumbPress}" Storyboard.TargetProperty="(Background).(SolidColorBrush.Color)"/>
+                    </Storyboard>
+                  </VisualState>
+                </VisualStateGroup>
+              </VisualStateManager.VisualStateGroups>
+            </Border>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    <Style TargetType="{x:Type ScrollBar}">
+      <Setter Property="Stylus.IsFlicksEnabled" Value="false"/>
+      <Setter Property="Stylus.IsPressAndHoldEnabled" Value="false"/>
+      <Setter Property="Control.Background" Value="{DynamicResource scrollBackground}"/>
+      <Setter Property="Control.Foreground" Value="{DynamicResource scrollForeground}"/>
+      <Setter Property="FrameworkElement.Width" Value="4"/>
+      <Setter Property="FrameworkElement.MinWidth" Value="4"/>
+      <Setter Property="Control.Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="{x:Type ScrollBar}">
+            <Grid SnapsToDevicePixels="true">
+              <Grid.RowDefinitions>
+                <RowDefinition Height="0.00001*"/>
+              </Grid.RowDefinitions>
+              <Border Background="{TemplateBinding Control.Background}" Grid.Row="0"/>
+              <Track x:Name="PART_Track" IsDirectionReversed="true" IsEnabled="{TemplateBinding UIElement.IsMouseOver}"
+                     Grid.Row="0">
+                <Track.DecreaseRepeatButton>
+                  <RepeatButton Command="{x:Static ScrollBar.PageUpCommand}" Style="{StaticResource HiddenRepeatButton}"/>
+                </Track.DecreaseRepeatButton>
+                <Track.IncreaseRepeatButton>
+                  <RepeatButton Command="{x:Static ScrollBar.PageDownCommand}" Style="{StaticResource HiddenRepeatButton}"/>
+                </Track.IncreaseRepeatButton>
+                <Track.Thumb>
+                  <Thumb Style="{StaticResource ScrollThumb}"/>
+                </Track.Thumb>
+              </Track>
+            </Grid>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+      <Style.Triggers>
+        <Trigger Property="ScrollBar.Orientation" Value="Horizontal">
+          <Setter Property="FrameworkElement.Width" Value="Auto"/>
+          <Setter Property="FrameworkElement.Height" Value="4"/>
+          <Setter Property="FrameworkElement.MinHeight" Value="4"/>
+          <Setter Property="Control.Template">
+            <Setter.Value>
+              <ControlTemplate TargetType="{x:Type ScrollBar}">
+                <Grid SnapsToDevicePixels="true">
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="0.00001*"/>
+                  </Grid.RowDefinitions>
+                  <Border Background="{TemplateBinding Control.Background}" Grid.Row="0"/>
+                  <Track x:Name="PART_Track" IsEnabled="{TemplateBinding UIElement.IsMouseOver}" Grid.Row="0">
+                    <Track.DecreaseRepeatButton>
+                      <RepeatButton Command="{x:Static ScrollBar.PageUpCommand}" Style="{StaticResource HiddenRepeatButton}"/>
+                    </Track.DecreaseRepeatButton>
+                    <Track.IncreaseRepeatButton>
+                      <RepeatButton Command="{x:Static ScrollBar.PageDownCommand}" Style="{StaticResource HiddenRepeatButton}"/>
+                    </Track.IncreaseRepeatButton>
+                    <Track.Thumb>
+                      <Thumb Style="{StaticResource ScrollThumb}"/>
+                    </Track.Thumb>
+                  </Track>
+                </Grid>
+              </ControlTemplate>
+            </Setter.Value>
+          </Setter>
+        </Trigger>
+      </Style.Triggers>
+    </Style>
+    <Style TargetType="{x:Type ScrollViewer}">
+      <Setter Property="FrameworkElement.FocusVisualStyle" Value="{x:Null}"/>
+      <Setter Property="Control.Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="{x:Type ScrollViewer}">
+            <Grid x:Name="Grid" Background="{TemplateBinding Control.Background}">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+              </Grid.RowDefinitions>
+              <Rectangle Grid.Column="1" Grid.Row="1" Fill="{DynamicResource scrollBackground}"/>
+              <ScrollContentPresenter x:Name="PART_ScrollContentPresenter"
+                                      CanContentScroll="{TemplateBinding ScrollViewer.CanContentScroll}" CanHorizontallyScroll="false"
+                                      CanVerticallyScroll="false" ContentTemplate="{TemplateBinding ContentControl.ContentTemplate}"
+                                      Content="{TemplateBinding ContentControl.Content}" Grid.Column="0"
+                                      Margin="{TemplateBinding Control.Padding}" Grid.Row="0"/>
+              <ScrollBar x:Name="PART_HorizontalScrollBar" AutomationProperties.AutomationId="HorizontalScrollBar"
+                         Cursor="Arrow" Grid.Column="0" Maximum="{TemplateBinding ScrollViewer.ScrollableWidth}" Minimum="0"
+                         Orientation="Horizontal" Grid.Row="1"
+                         Visibility="{TemplateBinding ScrollViewer.ComputedHorizontalScrollBarVisibility}"
+                         ViewportSize="{TemplateBinding ScrollViewer.ViewportWidth}"
+                         Value="{Binding HorizontalOffset, Mode=OneWay, RelativeSource={RelativeSource Mode=TemplatedParent}}"/>
+              <ScrollBar x:Name="PART_VerticalScrollBar" AutomationProperties.AutomationId="VerticalScrollBar"
+                         Cursor="Arrow" Grid.Column="1" Maximum="{TemplateBinding ScrollViewer.ScrollableHeight}"
+                         Minimum="0" Grid.Row="0"
+                         Visibility="{TemplateBinding ScrollViewer.ComputedVerticalScrollBarVisibility}"
+                         ViewportSize="{TemplateBinding ScrollViewer.ViewportHeight}"
+                         Value="{Binding VerticalOffset, Mode=OneWay, RelativeSource={RelativeSource Mode=TemplatedParent}}"/>
+            </Grid>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    <Style x:Key="tabButton" TargetType="{x:Type Button}">
+      <Setter Property="UIElement.SnapsToDevicePixels" Value="true"/>
+      <Setter Property="FrameworkElement.OverridesDefaultStyle" Value="true"/>
+      <Setter Property="Control.Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="{x:Type Button}">
+            <Border x:Name="BackgroundBorder" Background="{TemplateBinding Control.Background}" BorderThickness="0"
+                    CornerRadius="{Binding BorderThickness, Converter={StaticResource thicknessToCornerRadiusConverter}, RelativeSource={RelativeSource AncestorType={x:Type Button}}}">
+              <VisualStateManager.VisualStateGroups>
+                <VisualStateGroup x:Name="CommonStates">
+                  <VisualState x:Name="Normal"/>
+                  <VisualState x:Name="MouseOver">
+                    <Storyboard>
+                      <ColorAnimation To="#1D1D1E" Duration="0:0:0.2" Storyboard.TargetName="BackgroundBorder"
+                                      Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"/>
+                      <ColorAnimation To="White" Duration="0:0:0.2" Storyboard.TargetName="IconPath"
+                                      Storyboard.TargetProperty="(Shape.Fill).(SolidColorBrush.Color)"/>
+                    </Storyboard>
+                  </VisualState>
+                  <VisualState x:Name="Pressed">
+                    <Storyboard>
+                      <ColorAnimation To="#2B2B2C" Duration="0:0:0.2" Storyboard.TargetName="BackgroundBorder"
+                                      Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"/>
+                      <ColorAnimation To="White" Duration="0:0:0.2" Storyboard.TargetName="IconPath"
+                                      Storyboard.TargetProperty="(Shape.Fill).(SolidColorBrush.Color)"/>
+                    </Storyboard>
+                  </VisualState>
+                </VisualStateGroup>
+              </VisualStateManager.VisualStateGroups>
+              <Path x:Name="IconPath" Fill="#B2B2B2" Margin="{TemplateBinding Control.Padding}" Stretch="Uniform"
+                    Data="{Binding Content, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"/>
+            </Border>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    <Style x:Key="tabButtonOnlyIconHover" TargetType="{x:Type Button}">
+      <Setter Property="UIElement.SnapsToDevicePixels" Value="true"/>
+      <Setter Property="FrameworkElement.OverridesDefaultStyle" Value="true"/>
+      <Setter Property="Control.Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="{x:Type Button}">
+            <Border x:Name="BackgroundBorder" Background="{TemplateBinding Control.Background}" BorderThickness="0"
+                    CornerRadius="{Binding BorderThickness, Converter={StaticResource thicknessToCornerRadiusConverter}, RelativeSource={RelativeSource AncestorType={x:Type Button}}}">
+              <VisualStateManager.VisualStateGroups>
+                <VisualStateGroup x:Name="CommonStates">
+                  <VisualState x:Name="Normal"/>
+                  <VisualState x:Name="MouseOver">
+                    <Storyboard>
+                      <ColorAnimation To="White" Duration="0:0:0.2" Storyboard.TargetName="IconPath"
+                                      Storyboard.TargetProperty="(Shape.Fill).(SolidColorBrush.Color)"/>
+                    </Storyboard>
+                  </VisualState>
+                  <VisualState x:Name="Pressed">
+                    <Storyboard>
+                      <ColorAnimation To="White" Duration="0:0:0.2" Storyboard.TargetName="IconPath"
+                                      Storyboard.TargetProperty="(Shape.Fill).(SolidColorBrush.Color)"/>
+                    </Storyboard>
+                  </VisualState>
+                </VisualStateGroup>
+              </VisualStateManager.VisualStateGroups>
+              <Path x:Name="IconPath" Fill="#B2B2B2" Margin="{TemplateBinding Control.Padding}" Stretch="Uniform"
+                    Data="{Binding Content, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"/>
+            </Border>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    <Style x:Key="textButton" TargetType="{x:Type Button}">
+      <Setter Property="UIElement.SnapsToDevicePixels" Value="true"/>
+      <Setter Property="FrameworkElement.OverridesDefaultStyle" Value="true"/>
+      <Setter Property="Control.Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="{x:Type Button}">
+            <Border x:Name="BackgroundBorder" Background="{TemplateBinding Control.Background}"
+                    BorderBrush="{TemplateBinding Control.BorderBrush}" BorderThickness="1" CornerRadius="4,4,4,4">
+              <VisualStateManager.VisualStateGroups>
+                <VisualStateGroup x:Name="CommonStates">
+                  <VisualState x:Name="Normal"/>
+                  <VisualState x:Name="MouseOver">
+                    <Storyboard>
+                      <ColorAnimation To="#2C2C2D" Duration="0:0:0.2" Storyboard.TargetName="BackgroundBorder"
+                                      Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"/>
+                    </Storyboard>
+                  </VisualState>
+                  <VisualState x:Name="Pressed">
+                    <Storyboard>
+                      <ColorAnimation To="#383839" Duration="0:0:0.2" Storyboard.TargetName="BackgroundBorder"
+                                      Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"/>
+                    </Storyboard>
+                  </VisualState>
+                </VisualStateGroup>
+              </VisualStateManager.VisualStateGroups>
+              <ContentPresenter Margin="8,6,8,6" HorizontalAlignment="Center" VerticalAlignment="Center" RecognizesAccessKey="true"/>
+            </Border>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    <Style x:Key="textButtonHighlighted" TargetType="{x:Type Button}">
+      <Setter Property="UIElement.SnapsToDevicePixels" Value="true"/>
+      <Setter Property="FrameworkElement.OverridesDefaultStyle" Value="true"/>
+      <Setter Property="Control.Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="{x:Type Button}">
+            <Border x:Name="BackgroundBorder" Background="{TemplateBinding Control.Background}"
+                    BorderBrush="{TemplateBinding Control.BorderBrush}" BorderThickness="0" CornerRadius="6,6,6,6">
+              <VisualStateManager.VisualStateGroups>
+                <VisualStateGroup x:Name="CommonStates">
+                  <VisualState x:Name="Normal"/>
+                  <VisualState x:Name="MouseOver">
+                    <Storyboard>
+                      <ColorAnimation To="#383839" Duration="0:0:0.2" Storyboard.TargetName="BackgroundBorder"
+                                      Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"/>
+                    </Storyboard>
+                  </VisualState>
+                  <VisualState x:Name="Pressed">
+                    <Storyboard>
+                      <ColorAnimation To="#444445" Duration="0:0:0.2" Storyboard.TargetName="BackgroundBorder"
+                                      Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"/>
+                    </Storyboard>
+                  </VisualState>
+                </VisualStateGroup>
+              </VisualStateManager.VisualStateGroups>
+              <ContentPresenter Margin="12,6,12,6" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                RecognizesAccessKey="true"/>
+            </Border>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    <Style TargetType="{x:Type TextBox}">
+      <Setter Property="UIElement.SnapsToDevicePixels" Value="true"/>
+      <Setter Property="FrameworkElement.OverridesDefaultStyle" Value="true"/>
+      <Setter Property="Control.Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="{x:Type TextBox}">
+            <Border x:Name="BackgroundBorder" Background="{TemplateBinding Control.Background}"
+                    BorderBrush="{TemplateBinding Control.BorderBrush}" BorderThickness="1" CornerRadius="4,4,4,4">
+              <ScrollViewer x:Name="PART_ContentHost" Margin="8,6,8,6"/>
+            </Border>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    <Style TargetType="{x:Type TabControl}">
+      <Setter Property="Control.BorderThickness" Value="0"/>
+      <Setter Property="UIElement.ClipToBounds" Value="true"/>
+      <Setter Property="FrameworkElement.FocusVisualStyle" Value="{x:Null}"/>
+      <Setter Property="FrameworkElement.OverridesDefaultStyle" Value="true"/>
+      <Setter Property="UIElement.SnapsToDevicePixels" Value="true"/>
+      <Setter Property="Control.Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="{x:Type TabControl}">
+            <Border x:Name="border" Background="{TemplateBinding Control.Background}" BorderThickness="0"
+                    CornerRadius="0" HorizontalAlignment="Stretch" Margin="0" VerticalAlignment="Stretch">
+              <Grid Margin="0">
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="Auto"/>
+                  <RowDefinition/>
+                </Grid.RowDefinitions>
+                <ScrollViewer Focusable="false" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                  <StackPanel Orientation="Horizontal">
+                    <ItemsControl>
+                      <StackPanel IsItemsHost="true" Margin="0,2,0,0" Orientation="Horizontal"/>
+                    </ItemsControl>
+                    <Button x:Name="NewTabButton"
+                            Content="M440-440H240q-17 0-28.5-11.5T200-480q0-17 11.5-28.5T240-520h200v-200q0-17 11.5-28.5T480-760q17 0 28.5 11.5T520-720v200h200q17 0 28.5 11.5T760-480q0 17-11.5 28.5T720-440H520v200q0 17-11.5 28.5T480-200q-17 0-28.5-11.5T440-240v-200Z"
+                            Background="#FF0F0F10" Width="40" Height="40" VerticalAlignment="Top" Padding="13,13,13,13"
+                            Style="{StaticResource tabButton}" Margin="-2,0,0,0"/>
+                  </StackPanel>
+                </ScrollViewer>
+                <ScrollViewer Focusable="false" Grid.Row="1" HorizontalScrollBarVisibility="Disabled"
+                              VerticalScrollBarVisibility="Disabled">
+                  <ContentPresenter x:Name="PART_SelectedContentHost" ContentSource="SelectedContent"/>
+                </ScrollViewer>
+              </Grid>
+            </Border>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    <Style TargetType="{x:Type TabItem}">
+      <Setter Property="Control.Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="{x:Type TabItem}">
+            <Grid x:Name="TabItemPanel" Background="#FF0F0F10" Height="40">
+              <ContentPresenter x:Name="ContentSite" ContentSource="Header" Margin="12,0,42,0" VerticalAlignment="Center"
+                                HorizontalAlignment="Left"/>
+              <Button x:Name="CloseTabItemButton"
+                      Content="M480-424 284-228q-11 11-28 11t-28-11q-11-11-11-28t11-28l196-196-196-196q-11-11-11-28t11-28q11-11 28-11t28 11l196 196 196-196q11-11 28-11t28 11q11 11 11 28t-11 28L536-480l196 196q11 11 11 28t-11 28q-11 11-28 11t-28-11L480-424Z"
+                      HorizontalAlignment="Right" Width="16" Height="16" Margin="0,0,14,0" Background="#FF0F0F10"
+                      Style="{DynamicResource tabButtonOnlyIconHover}" Padding="2,2,2,2" ToolTip="Open New Tab"/>
+              <Rectangle x:Name="TabItemSeparator" Stroke="#FF1D1D1E" HorizontalAlignment="Right" Width="1" Margin="0,0,4,0"/>
+            </Grid>
+            <ControlTemplate.Triggers>
+              <Trigger Property="TabItem.IsSelected" Value="true">
+                <Setter TargetName="TabItemPanel" Property="Panel.Background" Value="#FF1D1D1E"/>
+                <Setter TargetName="CloseTabItemButton" Property="Control.Background" Value="#FF1D1D1E"/>
+              </Trigger>
+              <Trigger Property="TabItem.IsSelected" Value="false">
+                <Setter TargetName="TabItemPanel" Property="Panel.Background" Value="#FF0F0F10"/>
+                <Setter TargetName="CloseTabItemButton" Property="Control.Background" Value="#FF0F0F10"/>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+  </FrameworkElement.Resources>
+  <WindowChrome.WindowChrome>
+    <WindowChrome GlassFrameThickness="0,0,0,0" CornerRadius="0"/>
+  </WindowChrome.WindowChrome>
+  <Grid x:Name="InvisiGrid">
+    <Border x:Name="MainBorder" BorderBrush="#FF1D1D1E" BorderThickness="1" Background="#FF0F0F10"
+            Margin="4,4,4,124" CornerRadius="8,8,8,8">
+      <UIElement.Effect>
+        <DropShadowEffect ShadowDepth="0" BlurRadius="12" Color="#FF0F0F10" Opacity="0.45" RenderingBias="Quality"/>
+      </UIElement.Effect>
+      <Grid x:Name="MainGrid">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="51"/>
+          <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="55"/>
+          <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid x:Name="MainContainer" ColumnSpan="2" RowSpan="2">
+          <UIElement.Effect>
+            <BlurEffect x:Name="MainBlur" KernelType="Gaussian" RenderingBias="Quality" Radius="0"/>
+          </UIElement.Effect>
+          <Grid x:Name="TopGrid" VerticalAlignment="Top" Height="51">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="55"/>
+              <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Rectangle x:Name="TopSeparator" Height="1" Stroke="#FF1D1D1E" VerticalAlignment="Bottom" Grid.ColumnSpan="2"/>
+            <DockPanel x:Name="TopPanel" Grid.Column="1" LastChildFill="false" FlowDirection="RightToLeft">
+              <Button Click="CloseButton_Click" x:Name="CloseButton"
+                      Content="M480-424 284-228q-11 11-28 11t-28-11q-11-11-11-28t11-28l196-196-196-196q-11-11-11-28t11-28q11-11 28-11t28 11l196 196 196-196q11-11 28-11t28 11q11 11 11 28t-11 28L536-480l196 196q11 11 11 28t-11 28q-11 11-28 11t-28-11L480-424Z"
+                      Width="50" VerticalAlignment="Top" HorizontalAlignment="Left" Height="50" Background="#FF0F0F10"
+                      BorderThickness="8,0,0,0" Padding="18,18,18,18" Style="{StaticResource tabButton}"/>
+              <Button Click="MaximiseButton_Click" x:Name="MaximiseButton"
+                      Content="M200-200h80q17 0 28.5 11.5T320-160q0 17-11.5 28.5T280-120H160q-17 0-28.5-11.5T120-160v-120q0-17 11.5-28.5T160-320q17 0 28.5 11.5T200-280v80Zm560 0v-80q0-17 11.5-28.5T800-320q17 0 28.5 11.5T840-280v120q0 17-11.5 28.5T800-120H680q-17 0-28.5-11.5T640-160q0-17 11.5-28.5T680-200h80ZM200-760v80q0 17-11.5 28.5T160-640q-17 0-28.5-11.5T120-680v-120q0-17 11.5-28.5T160-840h120q17 0 28.5 11.5T320-800q0 17-11.5 28.5T280-760h-80Zm560 0h-80q-17 0-28.5-11.5T640-800q0-17 11.5-28.5T680-840h120q17 0 28.5 11.5T840-800v120q0 17-11.5 28.5T800-640q-17 0-28.5-11.5T760-680v-80Z"
+                      Background="#FF0F0F10" Width="50" HorizontalAlignment="Left" VerticalAlignment="Top" Height="50"
+                      Padding="18,18,18,18" Style="{StaticResource tabButton}"/>
+              <Button Click="MinimiseButton_Click" x:Name="MinimiseButton"
+                      Content="M280-120q-17 0-28.5-11.5T240-160q0-17 11.5-28.5T280-200h400q17 0 28.5 11.5T720-160q0 17-11.5 28.5T680-120H280Z"
+                      Background="#FF0F0F10" Width="50" HorizontalAlignment="Left" VerticalAlignment="Top" Height="50"
+                      Padding="18,18,18,18" Style="{StaticResource tabButton}"/>
+            </DockPanel>
+            <Image x:Name="BloomIcon" HorizontalAlignment="Center" VerticalAlignment="Center" Height="28" Width="28"
+                   Source="/Assets/Images/MainIcon/Wave28.png"/>
+          </Grid>
+          <Grid x:Name="SideGrid" Margin="0,51,0,0" HorizontalAlignment="Left" Width="55">
+            <Rectangle x:Name="SideSeparator" Stroke="#FF1D1D1E" HorizontalAlignment="Right" Width="1"/>
+            <StackPanel x:Name="SidePanel">
+              <Controls:TabCheckBox x:Name="HomeButton" VerticalAlignment="Center" Height="54" Margin="0,0,1,0"
+                                    Icon="M160-200v-295l-40 31q-14 10-30 8t-26-16q-10-14-8-30t15-26l89-68v-84q0-17 11.5-28.5T200-720q17 0 28.5 11.5T240-680v23l191-146q11-8 23.5-12t25.5-4q13 0 25.5 4t23.5 12l360 275q13 10 15 26t-8 30q-10 13-26 15t-29-8l-41-30v295q0 33-23.5 56.5T720-120H540q-8 0-14-6t-6-14v-180q0-17-11.5-28.5T480-360q-17 0-28.5 11.5T440-320v180q0 8-6 14t-14 6H240q-33 0-56.5-23.5T160-200Zm52-560q-23 0-35.5-19t-1.5-39q17-29 44.5-45.5T280-880q11 0 21-5.5t15-15.5q5-9 13.5-14t19.5-5q23 0 35 19t1 39q-17 29-44.5 45.5T280-800q-11 0-21 5t-15 16q-5 9-13 14t-19 5Z"
+                                    Background="#FF0F0F10" Foreground="#FFB2B2B2" Visibility="Collapsed"/>
+              <Controls:TabCheckBox x:Name="EditorButton"
+                                    Icon="m353-480 59-59q12-12 12-28t-12-28q-12-12-28.5-12T355-595l-87 87q-6 6-8.5 13t-2.5 15q0 8 2.5 15t8.5 13l87 87q12 12 28.5 12t28.5-12q12-12 12-28t-12-28l-59-59Zm254 0-59 59q-12 12-12 28t12 28q12 12 28.5 12t28.5-12l87-87q6-6 8.5-13t2.5-15q0-8-2.5-15t-8.5-13l-87-87q-6-6-13.5-9t-15-3q-7.5 0-15 3t-13.5 9q-12 12-12 28t12 28l59 59ZM200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Z"
+                                    Margin="0,0,1,0" VerticalAlignment="Center" Height="54" Background="#FF0F0F10"
+                                    Foreground="#FFB2B2B2"/>
+              <Controls:TabCheckBox x:Name="ScriptsButton"
+                                    Icon="M600-40q-33 0-56.5-23.5T520-120q0-23 11-41t29-29v-221q-18-11-29-28.5T520-480q0-33 23.5-56.5T600-560q33 0 56.5 23.5T680-480q0 23-11 40.5T640-411v115l160-53v-62q-18-11-29-28.5T760-480q0-33 23.5-56.5T840-560q33 0 56.5 23.5T920-480q0 23-11 40.5T880-411v61q0 26-15 47t-40 29l-185 62v22q18 11 29 29t11 41q0 33-23.5 56.5T600-40ZM160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h207q16 0 30.5 6t25.5 17l57 57h360q17 0 28.5 11.5T880-680q0 17-11.5 28.5T840-640H600q-66 0-113 47t-47 113q0 31 10.5 58t29.5 48v148q-13 14-21.5 30.5T445-160H160Z"
+                                    Margin="0,0,1,0" VerticalAlignment="Center" Height="54" Background="#FF0F0F10"
+                                    Foreground="#FFB2B2B2"/>
+              <Controls:TabCheckBox x:Name="SettingsButton"
+                                    Icon="M421-80q-14 0-25-9t-13-23l-15-94q-19-7-40-19t-37-25l-86 40q-14 6-28 1.5T155-226L97-330q-8-13-4.5-27t15.5-23l80-59q-2-9-2.5-20.5T185-480q0-9 .5-20.5T188-521l-80-59q-12-9-15.5-23t4.5-27l58-104q8-13 22-17.5t28 1.5l86 40q16-13 37-25t40-18l15-95q2-14 13-23t25-9h118q14 0 25 9t13 23l15 94q19 7 40.5 18.5T669-710l86-40q14-6 27.5-1.5T804-734l59 104q8 13 4.5 27.5T852-580l-80 57q2 10 2.5 21.5t.5 21.5q0 10-.5 21t-2.5 21l80 58q12 8 15.5 22.5T863-330l-58 104q-8 13-22 17.5t-28-1.5l-86-40q-16 13-36.5 25.5T592-206l-15 94q-2 14-13 23t-25 9H421Zm59-270q54 0 92-38t38-92q0-54-38-92t-92-38q-54 0-92 38t-38 92q0 54 38 92t92 38Z"
+                                    Height="54" Background="#FF0F0F10" Foreground="#FFB2B2B2" VerticalAlignment="Center"
+                                    Margin="0,0,1,0"/>
+            </StackPanel>
+          </Grid>
+          <Grid x:Name="TabContainer" Margin="55,51,0,0">
+            <Grid x:Name="HomeTab"/>
+            <Grid x:Name="EditorTab">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition/>
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="41"/>
+                <RowDefinition/>
+                <RowDefinition Height="41"/>
+              </Grid.RowDefinitions>
+              <Rectangle x:Name="AISeparator" Stroke="#FF1D1D1E" HorizontalAlignment="Right" Width="1" Grid.RowSpan="3"
+                         Panel.ZIndex="1"/>
+              <Rectangle x:Name="EditorSeparator" Stroke="#FF1D1D1E" Grid.ColumnSpan="2" Grid.Row="2"
+                         VerticalAlignment="Top" Panel.ZIndex="1"/>
+              <StackPanel x:Name="EditorButtonPanel" Grid.Column="1" Grid.Row="2" Orientation="Horizontal" Margin="0,1,0,0"
+                          HorizontalAlignment="Right">
+                <Button Click="SelectedProcessButton_Click" x:Name="SelectedProcessButton" Content="{Username}"
+                        Style="{StaticResource textButtonHighlighted}" Height="32" Foreground="#FFC8C8C8"
+                        Background="#FF2C2C2D" FontFamily="SF Pro" FontSize="13" Margin="0,0,6,0"/>
+                <Button Click="OpenFileButton_Click" x:Name="OpenFileButton"
+                        Content="M240-80q-33 0-56.5-23.5T160-160v-640q0-33 23.5-56.5T240-880h287q16 0 30.5 6t25.5 17l194 194q11 11 17 25.5t6 30.5v447q0 33-23.5 56.5T720-80H240Zm280-560q0 17 11.5 28.5T560-600h160L520-800v160Zm-80 280v80q0 17 11.5 28.5T480-240q17 0 28.5-11.5T520-280v-80h80q17 0 28.5-11.5T640-400q0-17-11.5-28.5T600-440h-80v-80q0-17-11.5-28.5T480-560q-17 0-28.5 11.5T440-520v80h-80q-17 0-28.5 11.5T320-400q0 17 11.5 28.5T360-360h80Z"
+                        Background="#FF0F0F10" Padding="10,10,10,10" Style="{StaticResource tabButton}" ToolTip="Open File"
+                        Height="40" Width="40"/>
+                <Button Click="SaveFileButton_Click" x:Name="SaveFileButton"
+                        Content="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h447q16 0 30.5 6t25.5 17l114 114q11 11 17 25.5t6 30.5v447q0 33-23.5 56.5T760-120H200Zm280-120q50 0 85-35t35-85q0-50-35-85t-85-35q-50 0-85 35t-35 85q0 50 35 85t85 35ZM280-560h280q17 0 28.5-11.5T600-600v-80q0-17-11.5-28.5T560-720H280q-17 0-28.5 11.5T240-680v80q0 17 11.5 28.5T280-560Z"
+                        Background="#FF0F0F10" Padding="10,10,10,10" Style="{StaticResource tabButton}" ToolTip="Save File"
+                        Height="40" Width="40"/>
+                <Button Click="ClearButton_Click" x:Name="ClearButton"
+                        Content="M200-200q-33 0-56.5-23.5T120-280v-360q-17 0-28.5-11.5T80-680q0-17 11.5-28.5T120-720h120v-20q0-17 11.5-28.5T280-780h80q17 0 28.5 11.5T400-740v20h120q17 0 28.5 11.5T560-680q0 17-11.5 28.5T520-640v360q0 33-23.5 56.5T440-200H200Zm440-40q-17 0-28.5-11.5T600-280q0-17 11.5-28.5T640-320h80q17 0 28.5 11.5T760-280q0 17-11.5 28.5T720-240h-80Zm0-160q-17 0-28.5-11.5T600-440q0-17 11.5-28.5T640-480h160q17 0 28.5 11.5T840-440q0 17-11.5 28.5T800-400H640Zm0-160q-17 0-28.5-11.5T600-600q0-17 11.5-28.5T640-640h200q17 0 28.5 11.5T880-600q0 17-11.5 28.5T840-560H640Z"
+                        Background="#FF0F0F10" Padding="10,10,10,10" Style="{StaticResource tabButton}"
+                        ToolTip="Clear Editor" Height="40" Width="40"/>
+                <Button Click="ExecuteButton_Click" x:Name="ExecuteButton"
+                        Content="M176-183q-20 8-38-3.5T120-220v-180l320-80-320-80v-180q0-22 18-33.5t38-3.5l616 260q25 11 25 37t-25 37L176-183Z"
+                        Background="#FF0F0F10" Padding="10,10,10,10" Style="{StaticResource tabButton}" ToolTip="Execute"
+                        BorderThickness="0,0,8,0" Height="40" Width="40"/>
+              </StackPanel>
+              <Button Click="AIToggleButton_Click" x:Name="AIToggleButton"
+                      Content="M360-160H200q-33 0-56.5-23.5T120-240v-560q0-33 23.5-56.5T200-880h560q33 0 56.5 23.5T840-800v560q0 33-23.5 56.5T760-160H600l-92 92q-6 6-13 8.5T480-57q-8 0-15-2.5T452-68l-92-92Zm120-320q58 0 99-41t41-99q0-58-41-99t-99-41q-58 0-99 41t-41 99q0 58 41 99t99 41ZM200-240h560v-46q-54-53-125.5-83.5T480-400q-83 0-154.5 30.5T200-286v46Z"
+                      Background="#FF0F0F10" Padding="10,10,10,10" HorizontalAlignment="Left" Grid.Column="1"
+                      Grid.Row="2" Width="40" Height="40" Margin="0,1,0,0" Style="{StaticResource tabButton}"
+                      ToolTip="Toggle AI Panel"/>
+              <ScrollViewer ScrollChanged="AIChatScroll_ScrollChanged" x:Name="AIChatScroll" Grid.RowSpan="2"
+                            VerticalScrollBarVisibility="Auto" Width="216">
+                <StackPanel x:Name="AIChatPanel" ScrollViewer.VerticalScrollBarVisibility="Auto" CanVerticallyScroll="true"
+                            VerticalAlignment="Top" Margin="0,2,0,2">
+                  <AIControls:AIBotMessage x:Name="LoadingAI" Message="Hi! I'm WaveAI. How can I help?"/>
+                </StackPanel>
+              </ScrollViewer>
+              <Rectangle x:Name="TabSeparator" Stroke="#FF1D1D1E" VerticalAlignment="Bottom" Grid.Column="1"
+                         Panel.ZIndex="1"/>
+              <Grid x:Name="AIInputGrid" Row="2" Margin="0,1,0,0" HorizontalAlignment="Left" Width="216">
+                <Path x:Name="AIInputPath"
+                      Data="M 440,-480 Q 374,-480 327,-527 280,-574 280,-640 280,-706 327,-753 374,-800 440,-800 506,-800 553,-753 600,-706 600,-640 600,-574 553,-527 506,-480 440,-480 M 856,-48 L 756,-148 Q 735,-136 711,-128 687,-120 660,-120 585,-120 532.5,-172.5 480,-225 480,-300 480,-375 532.5,-427.5 585,-480 660,-480 735,-480 787.5,-427.5 840,-375 840,-300 840,-273 832,-249 824,-225 812,-204 L 912,-104 Q 923,-93 923,-76 923,-59 912,-48 901,-37 884,-37 867,-37 856,-48 M 660,-200 Q 702,-200 731,-229 760,-258 760,-300 760,-342 731,-371 702,-400 660,-400 618,-400 589,-371 560,-342 560,-300 560,-258 589,-229 618,-200 660,-200 M 200,-160 Q 167,-160 143.5,-183.5 120,-207 120,-240 L 120,-271 Q 120,-305 137,-334 154,-363 184,-378 229,-401 283.5,-417.5 338,-434 403,-439 415,-440 421,-429 427,-418 422,-406 411,-381 405.5,-354.5 400,-328 400,-301 400,-275 404.5,-248.5 409,-222 420,-198 426,-184 419,-172 412,-160 398,-160 L 200,-160 Z"
+                      Stretch="Fill" HorizontalAlignment="Left" VerticalAlignment="Center" Width="24" Height="24"
+                      Fill="#FFB2B2B2" Margin="12,0,0,0"/>
+                <TextBox GotFocus="AIInput_GotFocus" KeyDown="AIInput_KeyDown" LostFocus="AIInput_LostFocus"
+                         x:Name="AIInput" TextWrapping="Wrap" Text="Send a message..." Margin="36,0,0,0"
+                         VerticalContentAlignment="Center" Foreground="#FFB2B2B2" FontFamily="SF Pro"
+                         HorizontalAlignment="Left" Width="180" Background="{x:Null}" BorderBrush="{x:Null}"/>
+              </Grid>
+              <TabControl x:Name="ScriptTabs" Grid.Column="1" Background="#FF0F0F10" BorderThickness="0,0,0,0"
+                          Grid.RowSpan="2"/>
+            </Grid>
+            <Grid x:Name="ScriptsTab">
+              <TextBox GotFocus="SearchQuery_GotFocus" KeyDown="SearchQuery_KeyDown" LostFocus="SearchQuery_LostFocus"
+                       x:Name="SearchQuery" Margin="12,12,80.14,0" TextWrapping="Wrap" Text="Enter your search query..."
+                       VerticalAlignment="Top" Foreground="#FFC8C8C8" Background="#FF1D1D1E" BorderBrush="#FF2C2C2D"
+                       FontFamily="SF Pro" FontSize="14"/>
+              <Button Click="SearchBtn_Click" x:Name="SearchBtn" Content="Search" HorizontalAlignment="Right"
+                      Margin="0,12,12,0" VerticalAlignment="Top" Style="{DynamicResource textButton}"
+                      Foreground="#FFC8C8C8" Background="#FF1D1D1E" BorderBrush="#FF2C2C2D" FontFamily="SF Pro"
+                      FontSize="14"/>
+              <ScrollViewer x:Name="SearchResultScroll" Margin="9,89,9,9" VerticalScrollBarVisibility="Hidden">
+                <WrapPanel x:Name="SearchResultPanel" HorizontalAlignment="Center"/>
+              </ScrollViewer>
+              <Button Click="NextPageBtn_Click" x:Name="NextPageBtn" Content="&gt;" HorizontalAlignment="Right"
+                      Margin="0,52,12,0" VerticalAlignment="Top" Style="{DynamicResource textButton}"
+                      Foreground="#FFC8C8C8" Background="#FF1D1D1E" BorderBrush="#FF2C2C2D" FontFamily="SF Pro"
+                      FontSize="14"/>
+              <Button Click="PreviousPageBtn_Click" x:Name="PreviousPageBtn" Content="&lt;" HorizontalAlignment="Right"
+                      Margin="0,52,148,0" VerticalAlignment="Top" Style="{DynamicResource textButton}"
+                      Foreground="#FFC8C8C8" Background="#FF1D1D1E" BorderBrush="#FF2C2C2D" FontFamily="SF Pro"
+                      FontSize="14"/>
+              <Button Click="ScriptBloxCredits_Click" x:Name="ScriptBloxCredits" Content="Powered by scriptblox.com"
+                      HorizontalAlignment="Left" Margin="12,52,0,0" VerticalAlignment="Top"
+                      Style="{DynamicResource textButton}" Foreground="#FFC8C8C8" Background="#FF1D1D1E"
+                      BorderBrush="#FF2C2C2D" FontFamily="SF Pro" FontSize="14"/>
+              <Border x:Name="CurrentPageBorder" BorderBrush="#FF2C2C2D" BorderThickness="1" Width="90"
+                      HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,52,49,0" Background="#FF1D1D1E"
+                      CornerRadius="4,4,4,4" Height="30.8">
+                <Label x:Name="CurrentPageLabel" Content="Page 1/1" HorizontalAlignment="Center"
+                       VerticalAlignment="Center" FontFamily="SF Pro" FontSize="14" Foreground="#FFC8C8C8"
+                       HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Background="{x:Null}"/>
+              </Border>
+            </Grid>
+            <Grid x:Name="SettingsTab">
+              <Grid.RowDefinitions>
+                <RowDefinition Height="51"/>
+                <RowDefinition/>
+              </Grid.RowDefinitions>
+              <Rectangle x:Name="SettingsSeparator" Stroke="#FF1D1D1E" VerticalAlignment="Bottom"/>
+              <StackPanel x:Name="SettingsHeaderStack" Orientation="Horizontal" Margin="0,0,0,1">
+                <Button x:Name="ExecutorHeaderButton" Height="50"
+                        Content="M560-600q-17 0-28.5-11.5T520-640v-160q0-17 11.5-28.5T560-840h240q17 0 28.5 11.5T840-800v160q0 17-11.5 28.5T800-600H560ZM160-440q-17 0-28.5-11.5T120-480v-320q0-17 11.5-28.5T160-840h240q17 0 28.5 11.5T440-800v320q0 17-11.5 28.5T400-440H160Zm400 320q-17 0-28.5-11.5T520-160v-320q0-17 11.5-28.5T560-520h240q17 0 28.5 11.5T840-480v320q0 17-11.5 28.5T800-120H560Zm-400 0q-17 0-28.5-11.5T120-160v-160q0-17 11.5-28.5T160-360h240q17 0 28.5 11.5T440-320v160q0 17-11.5 28.5T400-120H160Z"
+                        Background="#FF0F0F10" Foreground="#FFB2B2B2" Width="50" Padding="14,14,14,14"
+                        Style="{StaticResource tabButton}"/>
+                <Button x:Name="EditorHeaderButton" Height="50"
+                        Content="m353-480 59-59q12-12 12-28t-12-28q-12-12-28.5-12T355-595l-87 87q-6 6-8.5 13t-2.5 15q0 8 2.5 15t8.5 13l87 87q12 12 28.5 12t28.5-12q12-12 12-28t-12-28l-59-59Zm254 0-59 59q-12 12-12 28t12 28q12 12 28.5 12t28.5-12l87-87q6-6 8.5-13t2.5-15q0-8-2.5-15t-8.5-13l-87-87q-6-6-13.5-9t-15-3q-7.5 0-15 3t-13.5 9q-12 12-12 28t12 28l59 59ZM200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Z"
+                        Background="#FF0F0F10" Foreground="#FFB2B2B2" Width="50" Padding="14,14,14,14"
+                        Style="{StaticResource tabButton}"/>
+                <Button x:Name="AIHeaderButton"
+                        Content="M360-160H200q-33 0-56.5-23.5T120-240v-560q0-33 23.5-56.5T200-880h560q33 0 56.5 23.5T840-800v560q0 33-23.5 56.5T760-160H600l-92 92q-6 6-13 8.5T480-57q-8 0-15-2.5T452-68l-92-92Zm120-320q58 0 99-41t41-99q0-58-41-99t-99-41q-58 0-99 41t-41 99q0 58 41 99t99 41ZM200-240h560v-46q-54-53-125.5-83.5T480-400q-83 0-154.5 30.5T200-286v46Z"
+                        Background="#FF0F0F10" Foreground="#FFB2B2B2" Padding="14,14,14,14"
+                        Style="{StaticResource tabButton}" Height="50" Width="50"/>
+              </StackPanel>
+              <ScrollViewer x:Name="SettingsScroll" Grid.Row="1" Margin="8,8,8,8">
+                <StackPanel x:Name="SettingsStack">
+                  <Grid x:Name="ExecutorHeader" Height="56">
+                    <Path x:Name="ExecutorHeaderPath"
+                          Data="M 560,-600 Q 543,-600 531.5,-611.5 520,-623 520,-640 L 520,-800 Q 520,-817 531.5,-828.5 543,-840 560,-840 L 800,-840 Q 817,-840 828.5,-828.5 840,-817 840,-800 L 840,-640 Q 840,-623 828.5,-611.5 817,-600 800,-600 L 560,-600 M 160,-440 Q 143,-440 131.5,-451.5 120,-463 120,-480 L 120,-800 Q 120,-817 131.5,-828.5 143,-840 160,-840 L 400,-840 Q 417,-840 428.5,-828.5 440,-817 440,-800 L 440,-480 Q 440,-463 428.5,-451.5 417,-440 400,-440 L 160,-440 M 560,-120 Q 543,-120 531.5,-131.5 520,-143 520,-160 L 520,-480 Q 520,-497 531.5,-508.5 543,-520 560,-520 L 800,-520 Q 817,-520 828.5,-508.5 840,-497 840,-480 L 840,-160 Q 840,-143 828.5,-131.5 817,-120 800,-120 L 560,-120 M 160,-120 Q 143,-120 131.5,-131.5 120,-143 120,-160 L 120,-320 Q 120,-337 131.5,-348.5 143,-360 160,-360 L 400,-360 Q 417,-360 428.5,-348.5 440,-337 440,-320 L 440,-160 Q 440,-143 428.5,-131.5 417,-120 400,-120 L 160,-120 Z"
+                          Fill="#FFB2B2B2" Stretch="Fill" Width="24" Height="24" Margin="12,12,0,0"
+                          HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                    <Label x:Name="ExecutorHeaderLabel" Content="Executor" HorizontalAlignment="Left" Margin="44,12,0,0"
+                           VerticalAlignment="Top" Foreground="#FFC8C8C8" FontSize="16" FontFamily="SF Pro"
+                           Background="{x:Null}"/>
+                  </Grid>
+                  <Settings:SettingCheckBox x:Name="MultiInstance" OnCheckedChanged="MultiInstance_OnCheckedChanged" Title="Multi Instance"
+                                            Description="Allows you to open multiple Roblox processes at the same time" Margin="4,2,4,2"
+                                            Width="NaN" Height="66"/>
+                  <Settings:SettingCheckBox x:Name="AutoExecute" OnCheckedChanged="AutoExecute_OnCheckedChanged" Title="Auto Execute"
+                                            Description="Automatically executes everything in the `autoexec` folder when Wave is attached"
+                                            Margin="4,2,4,2" Width="NaN" Height="66"/>
+                  <Settings:SettingCheckBox x:Name="SaveTabs" OnCheckedChanged="SaveTabs_OnCheckedChanged" Title="Save Tabs"
+                                            Description="Saves your editor tabs locally and reloads them next time you open Wave"
+                                            Margin="4,2,4,2" Width="NaN" Height="66"/>
+                  <Settings:SettingCheckBox x:Name="TopMost" OnCheckedChanged="TopMost_OnCheckedChanged" Title="Top Most"
+                                            Description="Shows Wave above other applications even when not focused" Margin="4,2,4,2"
+                                            Width="NaN" Height="66"/>
+                  <Grid x:Name="EditorHeader" Height="56" Margin="0,8,0,0">
+                    <Path x:Name="EditorHeaderPath"
+                          Data="M 353,-480 L 412,-539 Q 424,-551 424,-567 424,-583 412,-595 400,-607 383.5,-607 367,-607 355,-595 L 268,-508 Q 262,-502 259.5,-495 257,-488 257,-480 257,-472 259.5,-465 262,-458 268,-452 L 355,-365 Q 367,-353 383.5,-353 400,-353 412,-365 424,-377 424,-393 424,-409 412,-421 L 353,-480 M 607,-480 L 548,-421 Q 536,-409 536,-393 536,-377 548,-365 560,-353 576.5,-353 593,-353 605,-365 L 692,-452 Q 698,-458 700.5,-465 703,-472 703,-480 703,-488 700.5,-495 698,-502 692,-508 L 605,-595 Q 599,-601 591.5,-604 584,-607 576.5,-607 569,-607 561.5,-604 554,-601 548,-595 536,-583 536,-567 536,-551 548,-539 L 607,-480 M 200,-120 Q 167,-120 143.5,-143.5 120,-167 120,-200 L 120,-760 Q 120,-793 143.5,-816.5 167,-840 200,-840 L 760,-840 Q 793,-840 816.5,-816.5 840,-793 840,-760 L 840,-200 Q 840,-167 816.5,-143.5 793,-120 760,-120 L 200,-120 Z"
+                          Fill="#FFB2B2B2" Stretch="Fill" Width="24" Height="24" Margin="12,12,0,0"
+                          HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                    <Label x:Name="EditorHeaderLabel" Content="Editor" HorizontalAlignment="Left" Margin="44,12,0,0"
+                           VerticalAlignment="Top" Foreground="#FFC8C8C8" FontSize="16" FontFamily="SF Pro"
+                           Background="{x:Null}"/>
+                  </Grid>
+                  <Settings:SettingSlider x:Name="EditorRefreshRate" OnValueChanged="EditorRefreshRate_OnValueChanged" MaximumValue="240"
+                                          Value="60" MinimumValue="30" Title="Refresh Rate"
+                                          Description="Changes the FPS cap applied to the editor's renderer" Margin="4,2,4,2" Width="NaN"
+                                          Height="66"/>
+                  <Settings:SettingSlider x:Name="EditorTextSize" OnValueChanged="EditorTextSize_OnValueChanged" MaximumValue="32" Value="14"
+                                          MinimumValue="8" Title="Text Size" Description="Changes the size of the editor's content"
+                                          RoundingFactor="2" Height="66" Margin="4,2,4,2" Width="NaN"/>
+                  <Settings:SettingCheckBox x:Name="ShowMinimap" OnCheckedChanged="ShowMinimap_OnCheckedChanged" Title="Minimap"
+                                            Description="Opens a minimap of your whole script on the right of the editor" Height="66"
+                                            Margin="4,2,4,2"/>
+                  <Settings:SettingCheckBox x:Name="ShowInlayHints" OnCheckedChanged="ShowInlayHints_OnCheckedChanged" Title="Inlay Hints"
+                                            Description="Shows inlay hints for explicit type checking" Height="66" Margin="4,2,4,2"/>
+                  <Grid x:Name="AIHeader" Height="56" Margin="0,8,0,0">
+                    <Path x:Name="AIHeaderPath"
+                          Data="M 360,-160 L 200,-160 Q 167,-160 143.5,-183.5 120,-207 120,-240 L 120,-800 Q 120,-833 143.5,-856.5 167,-880 200,-880 L 760,-880 Q 793,-880 816.5,-856.5 840,-833 840,-800 L 840,-240 Q 840,-207 816.5,-183.5 793,-160 760,-160 L 600,-160 508,-68 Q 502,-62 495,-59.5 488,-57 480,-57 472,-57 465,-59.5 458,-62 452,-68 L 360,-160 M 480,-480 Q 538,-480 579,-521 620,-562 620,-620 620,-678 579,-719 538,-760 480,-760 422,-760 381,-719 340,-678 340,-620 340,-562 381,-521 422,-480 480,-480 M 200,-240 L 760,-240 760,-286 Q 706,-339 634.5,-369.5 563,-400 480,-400 397,-400 325.5,-369.5 254,-339 200,-286 L 200,-240 Z"
+                          Fill="#FFB2B2B2" Stretch="Fill" Width="24" Height="24" Margin="12,12,0,0"
+                          HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                    <Label x:Name="AIHeaderLabel" Content="AI" HorizontalAlignment="Left" Margin="44,12,0,0"
+                           VerticalAlignment="Top" Foreground="#FFC8C8C8" FontSize="16" FontFamily="SF Pro"
+                           Background="{x:Null}"/>
+                  </Grid>
+                  <Settings:SettingCheckBox x:Name="UseConversationHistory" OnCheckedChanged="UseConversationHistory_OnCheckedChanged"
+                                            Title="Use Conversation History"
+                                            Description="This will make the AI treat your chat as a conversation instead of individual prompts"
+                                            Height="66" Margin="4,2,4,2"/>
+                  <Settings:SettingCheckBox x:Name="AppendCurrentScript" OnCheckedChanged="AppendCurrentScript_OnCheckedChanged"
+                                            Title="Send Current Script"
+                                            Description="Sends your current tab with AI prompts. You will be able to refer to 'your script' in your prompts"
+                                            Height="66" Margin="4,2,4,2"/>
+                  <Settings:SettingButton x:Name="ClearConversationHistory" OnClicked="ClearConversationHistory_OnClicked"
+                                          Description="Removes all messages from the AI's conversational history"
+                                          Title="Clear Conversation History" Shorthand="Clear" Height="66" Margin="4,2,4,2"/>
+                </StackPanel>
+              </ScrollViewer>
+            </Grid>
+          </Grid>
+          <Border x:Name="NotificationBorder" BorderBrush="#FF2C2C2D" BorderThickness="1" Panel.ZIndex="1"
+                  HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,12,12" CornerRadius="6,6,6,6"
+                  Background="#FF1D1D1E" Width="280">
+            <Grid x:Name="NotificationGrid">
+              <TextBlock x:Name="NotificationContent" Margin="16,16,32,18" TextWrapping="Wrap" Text="Wave Loaded!"
+                         VerticalAlignment="Top" FontFamily="SF Pro" FontSize="13" Foreground="#FFC8C8C8"
+                         HorizontalAlignment="Left" Width="230"/>
+              <Border x:Name="DurationIndicator" Width="278" Height="4" VerticalAlignment="Bottom"
+                      HorizontalAlignment="Left" CornerRadius="2,2,2,2" Background="#FF383839"/>
+              <Button Click="CloseNotificationButton_Click" x:Name="CloseNotificationButton"
+                      Content="M480-424 284-228q-11 11-28 11t-28-11q-11-11-11-28t11-28l196-196-196-196q-11-11-11-28t11-28q11-11 28-11t28 11l196 196 196-196q11-11 28-11t28 11q11 11 11 28t-11 28L536-480l196 196q11 11 11 28t-11 28q-11 11-28 11t-28-11L480-424Z"
+                      Background="#FF1D1D1E" Padding="7,7,7,7" Style="{StaticResource tabButton}" Width="26" Height="26"
+                      HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,2,2,0" BorderThickness="0,6,0,0"/>
+            </Grid>
+          </Border>
+        </Grid>
+        <Grid x:Name="InstancePopupGrid" ColumnSpan="2" RowSpan="2" ZIndex="2">
+          <Border x:Name="InstanceBorder" BorderBrush="#FF2C2C2D" BorderThickness="1" HorizontalAlignment="Center"
+                  Width="500" Background="#FF161617" CornerRadius="6,6,6,6" Margin="0,80,0,80" Panel.ZIndex="1">
+            <Grid x:Name="InstanceGrid">
+              <Grid x:Name="InstanceTopGrid" VerticalAlignment="Top" Height="51">
+                <Rectangle x:Name="InstanceTopSeparator" Height="1" Stroke="#FF2C2C2D" VerticalAlignment="Bottom"/>
+                <Button Click="CloseInstanceButton_Click" x:Name="CloseInstanceButton"
+                        Content="M480-424 284-228q-11 11-28 11t-28-11q-11-11-11-28t11-28l196-196-196-196q-11-11-11-28t11-28q11-11 28-11t28 11l196 196 196-196q11-11 28-11t28 11q11 11 11 28t-11 28L536-480l196 196q11 11 11 28t-11 28q-11 11-28 11t-28-11L480-424Z"
+                        Background="#FF161617" Padding="18,18,18,18" Style="{StaticResource tabButton}" Margin="0,0,0,1"
+                        HorizontalAlignment="Right" BorderThickness="0,8,0,0"/>
+                <Label x:Name="InstanceTitle" Content="Instance Selection" HorizontalAlignment="Left" Margin="12,0,0,3"
+                       FontFamily="SF Pro" FontSize="16" Foreground="Gainsboro" VerticalContentAlignment="Center"
+                       Background="{x:Null}"/>
+              </Grid>
+              <ScrollViewer ScrollChanged="AIChatScroll_ScrollChanged" x:Name="InstanceScroll"
+                            VerticalScrollBarVisibility="Auto" Margin="4,55,4,4">
+                <StackPanel x:Name="InstanceStack" ScrollViewer.VerticalScrollBarVisibility="Auto" CanVerticallyScroll="true"
+                            VerticalAlignment="Top" Margin="0,2,0,2"/>
+              </ScrollViewer>
+            </Grid>
+          </Border>
+          <Border x:Name="InstanceBackgroundBorder" BorderThickness="1" Background="#FF0F0F10" CornerRadius="8,8,8,8"
+                  Opacity="0.2"/>
+        </Grid>
+        <Grid x:Name="LoginPopupGrid" ColumnSpan="2" RowSpan="2" ZIndex="2">
+          <Border x:Name="LoginBorder" BorderBrush="#FF2C2C2D" BorderThickness="1" HorizontalAlignment="Center"
+                  VerticalAlignment="Center" Width="500" Height="280" Background="#FF161617" CornerRadius="6,6,6,6"
+                  Panel.ZIndex="1"/>
+          <Border x:Name="LoginBackgroundBorder" BorderThickness="1" Background="#FF0F0F10" CornerRadius="8,8,8,8"
+                  Opacity="0.2"/>
+        </Grid>
+      </Grid>
+    </Border>
+    <Border MouseLeftButtonDown="AdBorder_MouseLeftButtonDown" x:Name="AdBorder" BorderBrush="#FF1D1D1E"
+            BorderThickness="1" VerticalAlignment="Bottom" Height="112" CornerRadius="8,8,8,8" Margin="4,4,4,4">
+      <UIElement.Effect>
+        <DropShadowEffect ShadowDepth="0" BlurRadius="12" Color="#FF0F0F10" Opacity="0.45" RenderingBias="Quality"/>
+      </UIElement.Effect>
+      <Grid x:Name="AdGrid">
+        <Button Click="CloseAdButton_Click" x:Name="CloseAdButton"
+                Content="M480-424 284-228q-11 11-28 11t-28-11q-11-11-11-28t11-28l196-196-196-196q-11-11-11-28t11-28q11-11 28-11t28 11l196 196 196-196q11-11 28-11t28 11q11 11 11 28t-11 28L536-480l196 196q11 11 11 28t-11 28q-11 11-28 11t-28-11L480-424Z"
+                Background="#FF0F0F10" BorderThickness="4,4,4,4" Padding="8,8,8,8"
+                Style="{StaticResource tabButton}" Margin="0,8,8,0" HorizontalAlignment="Right"
+                VerticalAlignment="Top" Width="32" Height="32" Panel.ZIndex="1"/>
+      </Grid>
+    </Border>
+  </Grid>
+</Window>

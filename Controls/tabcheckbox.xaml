@@ -1,0 +1,25 @@
+<UserControl x:Class="Wave.Controls.TabCheckBox"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:Wave.Controls"
+             xmlns:converters="clr-namespace:Wave.Classes.Passive.Converters"
+             x:Name="TabCheckBoxControl">
+  <FrameworkElement.Resources>
+    <converters:IsIconUniformConverter x:Key="isIconUniformConverter"/>
+  </FrameworkElement.Resources>
+  <Grid MouseLeftButtonDown="MainGrid_MouseLeftButtonDown" x:Name="MainGrid"
+        Background="{Binding Background, RelativeSource={RelativeSource AncestorType=local:TabCheckBox}}">
+    <Path x:Name="IconPath" Panel.ZIndex="1" Margin="16,16,16,16"
+          Data="{Binding Icon, RelativeSource={RelativeSource AncestorType=local:TabCheckBox}}"
+          Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=local:TabCheckBox}}"
+          Stretch="{Binding IsIconUniform, RelativeSource={RelativeSource AncestorType=local:TabCheckBox}, Converter={StaticResource isIconUniformConverter}}"/>
+    <Rectangle x:Name="Highlight" StrokeThickness="0" Opacity="0"
+               Fill="{Binding BackgroundSelected, RelativeSource={RelativeSource AncestorType=local:TabCheckBox}}"/>
+    <Path x:Name="IconHighlight" Panel.ZIndex="2" Opacity="0" Margin="16,16,16,16"
+          Data="{Binding Icon, RelativeSource={RelativeSource AncestorType={x:Type local:TabCheckBox}}}"
+          Fill="{Binding IconSelected, RelativeSource={RelativeSource AncestorType=local:TabCheckBox}}"
+          Stretch="{Binding IsIconUniform, RelativeSource={RelativeSource AncestorType=local:TabCheckBox}, Converter={StaticResource isIconUniformConverter}}"/>
+  </Grid>
+</UserControl>

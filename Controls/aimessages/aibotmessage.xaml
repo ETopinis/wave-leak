@@ -1,0 +1,21 @@
+<UserControl x:Class="Wave.Controls.AI.AIBotMessage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:Wave.Controls.AI"
+             x:Name="AIBotMessageControl" HorizontalAlignment="Center" VerticalAlignment="Center" Width="208">
+  <Grid x:Name="MainGrid" VerticalAlignment="Center">
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="14"/>
+      <ColumnDefinition/>
+    </Grid.ColumnDefinitions>
+    <TextBlock x:Name="MessageBlock" TextWrapping="Wrap" Margin="6,34,6,8" VerticalAlignment="Center"
+               HorizontalAlignment="Left" Foreground="#FFB2B2B2" FontFamily="SF Pro" Grid.Column="1"
+               Text="{Binding Message, RelativeSource={RelativeSource AncestorType=local:AIBotMessage}, FallbackValue='Hi! How are you?'}"/>
+    <Label x:Name="Title" Content="WaveAI" HorizontalAlignment="Left" Margin="0,6,0,0" VerticalAlignment="Top"
+           Grid.Column="1" Foreground="Gainsboro" FontFamily="SF Pro" FontSize="14" Background="{x:Null}"/>
+    <Border x:Name="Sideline" Background="#FF373738" CornerRadius="3,3,3,3" HorizontalAlignment="Left"
+            Width="4" Margin="6,14,0,10"/>
+  </Grid>
+</UserControl>

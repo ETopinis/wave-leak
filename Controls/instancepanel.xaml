@@ -1,0 +1,84 @@
+<UserControl x:Class="Wave.Controls.InstancePanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:converters="clr-namespace:Wave.Classes.Passive.Converters"
+             xmlns:local="clr-namespace:Wave.Controls"
+             x:Name="InstancePanelControl" Height="50">
+  <FrameworkElement.Resources>
+    <converters:ThicknessToCornerRadiusConverter x:Key="thicknessToCornerRadiusConverter"/>
+    <Style x:Key="tabButton" TargetType="{x:Type Button}">
+      <Setter Property="UIElement.SnapsToDevicePixels" Value="true"/>
+      <Setter Property="FrameworkElement.OverridesDefaultStyle" Value="true"/>
+      <Setter Property="Control.Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="{x:Type Button}">
+            <Border x:Name="BackgroundBorder" Background="{TemplateBinding Control.Background}" BorderThickness="0"
+                    CornerRadius="{Binding BorderThickness, Converter={StaticResource thicknessToCornerRadiusConverter}, RelativeSource={RelativeSource AncestorType={x:Type Button}}}">
+              <VisualStateManager.VisualStateGroups>
+                <VisualStateGroup x:Name="CommonStates">
+                  <VisualState x:Name="Normal"/>
+                  <VisualState x:Name="MouseOver">
+                    <Storyboard>
+                      <ColorAnimation To="#1D1D1E" Duration="0:0:0.2" Storyboard.TargetName="BackgroundBorder"
+                                      Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"/>
+                      <ColorAnimation To="White" Duration="0:0:0.2" Storyboard.TargetName="IconPath"
+                                      Storyboard.TargetProperty="(Shape.Fill).(SolidColorBrush.Color)"/>
+                    </Storyboard>
+                  </VisualState>
+                  <VisualState x:Name="Pressed">
+                    <Storyboard>
+                      <ColorAnimation To="#2B2B2C" Duration="0:0:0.2" Storyboard.TargetName="BackgroundBorder"
+                                      Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"/>
+                      <ColorAnimation To="White" Duration="0:0:0.2" Storyboard.TargetName="IconPath"
+                                      Storyboard.TargetProperty="(Shape.Fill).(SolidColorBrush.Color)"/>
+                    </Storyboard>
+                  </VisualState>
+                </VisualStateGroup>
+              </VisualStateManager.VisualStateGroups>
+              <Path x:Name="IconPath" Fill="#B2B2B2" Margin="{TemplateBinding Control.Padding}" Stretch="Uniform"
+                    Data="{Binding Content, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"/>
+            </Border>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+  </FrameworkElement.Resources>
+  <Border x:Name="InstanceBorder" Background="#FF161617" CornerRadius="8,8,8,8">
+    <VisualStateManager.VisualStateGroups>
+      <VisualStateGroup x:Name="CommonStates">
+        <VisualState x:Name="Normal"/>
+        <VisualState x:Name="MouseOver">
+          <Storyboard>
+            <ColorAnimation To="#1D1D1E" Duration="0:0:0.2" Storyboard.TargetName="InstanceBorder"
+                            Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"/>
+          </Storyboard>
+        </VisualState>
+      </VisualStateGroup>
+    </VisualStateManager.VisualStateGroups>
+    <Grid x:Name="InstanceGrid">
+      <Border x:Name="PlayerIcon" BorderBrush="#FF2C2C2D" BorderThickness="1" Width="40" Height="40"
+              CornerRadius="24,24,24,24" Margin="10,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center"
+              Background="#FF1D1D1E"/>
+      <Label x:Name="UsernameLabel" HorizontalAlignment="Left" VerticalAlignment="Top" FontFamily="SF Pro"
+             FontSize="14" Foreground="Gainsboro" Margin="60,4,0,0"
+             Content="{Binding Username, RelativeSource={RelativeSource AncestorType=local:InstancePanel}, FallbackValue=Username}"
+             Background="{x:Null}"/>
+      <Button Click="ExecuteButton_Click" x:Name="ExecuteButton"
+              Content="M176-183q-20 8-38-3.5T120-220v-180l320-80-320-80v-180q0-22 18-33.5t38-3.5l616 260q25 11 25 37t-25 37L176-183Z"
+              Background="#FF1D1D1E" Padding="10,10,10,10" Style="{StaticResource tabButton}" ToolTip="Execute"
+              BorderThickness="8,8,8,8" VerticalAlignment="Center" HorizontalAlignment="Right" Width="40"
+              Height="40" Margin="0,0,5,0" Panel.ZIndex="1" Foreground="{x:Null}"/>
+      <Label x:Name="IDLabel" HorizontalAlignment="Left" VerticalAlignment="Bottom" FontFamily="SF Pro"
+             FontSize="13" Foreground="#FFB2B2B2" Margin="60,0,0,4"
+             Content="{Binding UserID, FallbackValue='User ID', RelativeSource={RelativeSource AncestorType={x:Type local:InstancePanel}}}"
+             Background="{x:Null}"/>
+      <Button x:Name="SelectButton"
+              Content="M782-100 650-231l-30 91q-5 14-19 13.5T582-141l-91-303q-4-11 5-20t20-5l303 91q14 5 14.5 19T820-340l-91 30 132 132q17 17 17 39t-17 39q-17 17-39.5 17T782-100ZM480-800q-134 0-227 93t-93 227q0 126 83 216t208 102q17 2 29.5 15t11.5 30q-1 17-12.5 28T451-79q-78-5-145.5-39t-118-88.5q-50.5-54.5-79-125T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q157 0 273.5 107T881-509q2 16-9.5 27.5T843-469q-17 1-30.5-11T797-509q-15-120-104.5-205.5T480-800Z"
+              Background="#FF1D1D1E" Padding="10,10,10,10" Style="{StaticResource tabButton}" ToolTip="Execute"
+              BorderThickness="8,8,8,8" VerticalAlignment="Center" HorizontalAlignment="Right" Width="40"
+              Height="40" Margin="0,0,50,0" Panel.ZIndex="1" Foreground="{x:Null}"/>
+    </Grid>
+  </Border>
+</UserControl>
